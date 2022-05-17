@@ -1,0 +1,49 @@
+{
+  "name": "aim-app",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@testing-library/jest-dom": "^5.16.4",
+    "@testing-library/react": "^13.2.0",
+    "@testing-library/user-event": "^13.5.0",
+    "ant-table-extensions": "^1.1.7",
+    "antd": "^4.20.4",
+    "array-move": "latest",
+    "namor": "^1.1.2",
+    "react": "^18.1.0",
+    "react-color": "^2.19.3",
+    "react-dom": "^18.1.0",
+    "react-highlight-words": "^0.18.0",
+    "react-resizable": "latest",
+    "react-scripts": "5.0.1",
+    "react-sortable-hoc": "latest",
+    "react-table": "^7.7.0",
+    "react-text-annotate": "^0.3.0",
+    "styled-components": "^4.3.2",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

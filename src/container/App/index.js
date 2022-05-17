@@ -20,6 +20,9 @@ import { MoreOutlined, SearchOutlined } from "@ant-design/icons";
 //components
 import Annotator from "../../components/Annotator";
 import InputTag from "../../components/Label";
+import Popup from "../../components/Popup";
+
+import { useDebounce } from "../../utils/CustomHook";
 
 //input json data
 import { dataSet } from "../../assets/inputData";
@@ -81,11 +84,22 @@ function App(props) {
         list = {
           ...list,
           width: 50,
-          render: (text) => (
-            <MoreOutlined
-              style={{ cursor: "pointer", fontSize: "20px", color: "#08c" }}
-            />
-          ),
+          render: (text) => {
+            const content = (
+              <div>
+                <p>View Details</p>
+                <p>View Similar Entries</p>
+              </div>
+            );
+
+            return (
+              <Popup placement="bottom" type="click" content={content}>
+                <MoreOutlined
+                  style={{ cursor: "pointer", fontSize: "20px", color: "#08c" }}
+                />
+              </Popup>
+            );
+          },
         };
       }
 
@@ -182,12 +196,12 @@ function App(props) {
     }),
   };
 
-  //search input
-  const handleInput = (e) => {
-    // let input = searchInput.current.input.value;
-    if (searchInput.current.input.value) {
-      const value = table.filter((item, i) => {
-        return item.description.indexOf(searchInput.current.input.value) > -1;
+  //TODO: optimize the search function and sync with debounce hook
+  const handleSearch = (e) => {
+    const input = searchInput.current.input.value.toUpperCase();
+    if (input.length > 3) {
+      const value = table.filter((item, index) => {
+        return item.description.text.toUpperCase().includes(input);
       });
       setTable(value);
     } else {
@@ -197,11 +211,11 @@ function App(props) {
 
   return (
     <>
-      <div style={{ margin: "50px 140px" }}>
+      <div style={{ padding: "50px 140px" }}>
         <Input.Group>
           <Input.Search
             ref={searchInput}
-            onSearch={handleInput}
+            onChange={handleSearch}
             size="large"
             placeholder="Entry description search"
             style={{ width: "40%", margin: "20px 0" }}

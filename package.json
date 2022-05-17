@@ -19,6 +19,7 @@
     "react-sortable-hoc": "latest",
     "react-table": "^7.7.0",
     "react-text-annotate": "^0.3.0",
+    "sanitize.css": "^13.0.0",
     "styled-components": "^4.3.2",
     "web-vitals": "^2.1.4"
   },

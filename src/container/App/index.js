@@ -112,7 +112,7 @@ function App(props) {
       if (id === "comments") {
         list = {
           ...list,
-          width: 200,
+          width: 50,
           render: (comments,record,i) => (
             <>
               <Comments item={comments} record={record} i={i} setTable={(v)=>setTable(v)} completeData={table}/>

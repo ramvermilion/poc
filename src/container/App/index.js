@@ -1,15 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import {
   Input,
-  InputNumber,
-  Popconfirm,
-  Form,
-  Typography,
-  Tag,
-  Radio,
   Button,
   Select,
-  Space,
 } from "antd";
 
 //under testing
@@ -21,9 +14,9 @@ import { MoreOutlined, SearchOutlined } from "@ant-design/icons";
 import Annotator from "../../components/Annotator";
 import InputTag from "../../components/Label";
 import Popup from "../../components/Popup";
+import Comments from "../../components/Comments"
 
 import { useDebounce } from "../../utils/CustomHook";
-import Comments from "../../components/Comments"
 
 //input json data
 import { dataSet } from "../../assets/inputData";
@@ -76,7 +69,7 @@ function App(props) {
           ...list,
           width: 250,
           render: (text, record) => {
-            return <Annotator key={record.id} content={text} />;
+            return <Annotator key={record.id} content={record.description} label={record.labels} />;
           },
         };
       }
@@ -115,6 +108,7 @@ function App(props) {
           ),
         };
       }
+
       if (id === "comments") {
         list = {
           ...list,
@@ -126,6 +120,7 @@ function App(props) {
           ),
         };
       }
+
       // list = {
       //   ...list,
       //   onHeaderCell: (column) => ({

@@ -23,6 +23,7 @@ import InputTag from "../../components/Label";
 import Popup from "../../components/Popup";
 
 import { useDebounce } from "../../utils/CustomHook";
+import Comments from "../../components/Comments"
 
 //input json data
 import { dataSet } from "../../assets/inputData";
@@ -114,7 +115,17 @@ function App(props) {
           ),
         };
       }
-
+      if (id === "comments") {
+        list = {
+          ...list,
+          width: 200,
+          render: (comments,record,i) => (
+            <>
+              <Comments item={comments} record={record} i={i} setTable={(v)=>setTable(v)} completeData={table}/>
+            </>
+          ),
+        };
+      }
       // list = {
       //   ...list,
       //   onHeaderCell: (column) => ({

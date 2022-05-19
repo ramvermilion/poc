@@ -12,9 +12,6 @@ import Annotator from "../../components/Annotator";
 import InputTag from "../../components/Label";
 import Popup from "../../components/Popup";
 import Comments from "../../components/Comments";
-// import { getColumnSearchProps } from "../../components/SearchUtils";
-
-import { useDebounce } from "../../utils/CustomHook";
 
 //input json data
 import { dataSet } from "../../assets/inputData";
@@ -22,13 +19,11 @@ import { dataSet } from "../../assets/inputData";
 function HomePage(props) {
   const [table, setTable] = useState(dataSet.data);
   const [column, setColumns] = useState(dataSet.columns);
-  const [selectionType, setSelectionType] = useState("checkbox");
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
   const searchInput = useRef(null);
-  const { Option } = Select;
 
-  //TODO: optimize the search function and try moving to different file
+  //TODO: Try moving to different file
   function getColumnSearchProps(dataIndex) {
     return {
       filterDropdown: ({
@@ -59,22 +54,14 @@ function HomePage(props) {
               Search
             </Button>
             <Button
-              onClick={() => handleReset(clearFilters)}
+              onClick={() => {
+                setSelectedKeys("");
+                confirm();
+              }}
               size="small"
               style={{ width: 90 }}
             >
               Reset
-            </Button>
-            <Button
-              type="link"
-              size="small"
-              onClick={() => {
-                confirm({ closeDropdown: false });
-                setSearchText(selectedKeys[0]);
-                setSearchedColumn(dataIndex);
-              }}
-            >
-              Filter
             </Button>
           </Space>
         </div>
@@ -97,17 +84,7 @@ function HomePage(props) {
           );
         }
       },
-      render: (text) =>
-        searchedColumn === dataIndex ? (
-          <Highlighter
-            highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
-            searchWords={[searchText]}
-            autoEscape
-            textToHighlight={text ? text.toString() : ""}
-          />
-        ) : (
-          text
-        ),
+      render: (text) => text,
     };
   }
 
@@ -115,12 +92,6 @@ function HomePage(props) {
     confirm();
     setSearchText(selectedKeys[0]);
     setSearchedColumn(dataIndex);
-  }
-
-  function handleReset(clearFilters) {
-    clearFilters();
-    setSearchText("");
-    setSearchedColumn("");
   }
 
   useEffect(() => {
@@ -327,7 +298,7 @@ function HomePage(props) {
           bordered
           exportableProps={{ showColumnPicker: true }}
           rowSelection={{
-            type: selectionType,
+            type: "checkbox",
             ...rowSelection,
           }}
           components={components}

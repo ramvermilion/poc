@@ -7,7 +7,7 @@ import Palette from "../Palette";
 import { useOutsideClick } from "../../utils/CustomHook";
 
 function Annotator(props) {
-  const { label,annotation ,text} = props;
+  const { label, annotation, text } = props;
   const [state, setState] = useState(annotation || []);
   const [content, setContent] = useState(text || "");
   const [color, setColor] = useState({ hex: "#84D2FF" });
@@ -60,7 +60,8 @@ function Annotator(props) {
     <div ref={popupRef} component="annotator">
       <Palette
         color={color}
-        label={label}
+        section="annotation"
+        // label={label}
         onChange={setColor.bind(null)}
         onClick={handleClick}
       />

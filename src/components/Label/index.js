@@ -1,19 +1,22 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Tag, Input, Popover, Button, Space, Card } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
-import { GithubPicker } from "react-color";
+
+import Popup from "../Popup";
+import Palette from "../Palette";
 
 import { useOutsideClick } from "../../utils/CustomHook";
 
 function InputTag(props) {
   const [tags, setTags] = useState(props.item);
   const input = useRef(null);
-  const [color, setColor] = useState("#EB2F96");
+  const [color, setColor] = useState({ hex: "#84D2FF" });
   const [inputVisible, setInputVisible] = useState(false);
-  const [inputValue, setInputValue] = useState("");
-  const impactRef = useRef();
+  const [inputText, setInputText] = useState("");
+  const popupRef = useRef();
+  const labelRef = useRef(null);
 
-  // useOutsideClick(impactRef, () => setInputVisible(false));
+  useOutsideClick(popupRef, () => setInputVisible(false));
 
   const handleClose = (removedTag) => {
     const updatedTags = tags.filter((tag) => tag !== removedTag);
@@ -26,20 +29,20 @@ function InputTag(props) {
     // input.current.focus();
   };
 
-  const handleInputChange = (e) => {
-    setInputValue(e.target.value);
-  };
-
-  const handleInputConfirm = () => {
+  const handleClick = () => {
     // const { inputValue } = this.state;
     // let { tags } = this.state;
     let updatedTags = tags;
-    if (inputValue && tags.indexOf(inputValue) === -1) {
-      updatedTags = [...tags, { text: inputValue, color: color.hex }];
+    if (inputText && tags.indexOf(inputText) === -1) {
+      updatedTags = [...tags, { text: inputText, color: color.hex }];
     }
     setTags(updatedTags);
     setInputVisible(false);
-    setInputValue("");
+    setInputText("");
+  };
+
+  const handleTextChange = (e) => {
+    setInputText(e.currentTarget.value);
   };
 
   const forMap = (tag) => {
@@ -64,45 +67,32 @@ function InputTag(props) {
 
   const tagChild = tags.map(forMap);
 
-  const content = (
-    <div>
-      <Space direction="vertical" size="small" style={{ display: "flex" }}>
-        <Card size="small">
-          <p style={{ color: color.hex }}>Color : {color.hex || "#fff"}</p>
-          <GithubPicker value={color} onChange={setColor.bind(null)} />
-          <br />
-          <Button type="primary" danger onClick={handleInputConfirm}>
-            Save
-          </Button>
-        </Card>
-      </Space>
+  const contentItems = (
+    <div ref={popupRef} component="label">
+      <Palette
+        color={color}
+        onTextChange={handleTextChange}
+        labelValue={inputText}
+        onChange={setColor.bind(null)}
+        onClick={handleClick}
+      />
     </div>
   );
 
   return (
     <>
       <div style={{ marginBottom: 16 }}>{tagChild}</div>
-      {inputVisible && (
-        <>
-          <Popover content={content} placement="bottom" arrowPointAtCenter>
-            <Input
-              ref={input}
-              type="text"
-              size="small"
-              style={{ width: 78 }}
-              value={inputValue}
-              onChange={handleInputChange}
-              // onBlur={handleInputConfirm}
-              onPressEnter={handleInputConfirm}
-            />
-          </Popover>
-        </>
-      )}
-      {!inputVisible && (
-        <Tag onClick={showInput} className="site-tag-plus">
-          <PlusOutlined /> New Label
-        </Tag>
-      )}
+      <>
+        <Popup
+          placement="bottom"
+          type="click"
+          // visible={visible}
+          // onVisibleChange={handleVisibleChange}
+          content={contentItems}
+        >
+          <PlusOutlined style={{ color: "black" }} />
+        </Popup>
+      </>
     </>
   );
 }

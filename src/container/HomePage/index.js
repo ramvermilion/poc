@@ -28,7 +28,7 @@ function HomePage(props) {
   const searchInput = useRef(null);
   const { Option } = Select;
 
-    //TODO: optimize the search function and try moving to different file
+  //TODO: optimize the search function and try moving to different file
   function getColumnSearchProps(dataIndex) {
     return {
       filterDropdown: ({
@@ -141,7 +141,7 @@ function HomePage(props) {
     //table columns data
     const updatedColumns = column.map((item, index) => {
       const sortList = ["id", "date"];
-      const searchList = ["id","description"];
+      const searchList = ["id", "description"];
       const id = item.id;
 
       let list = {

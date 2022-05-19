@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Input, Button, Select } from "antd";
+import { Input, Button, Select, Space } from "antd";
+import Highlighter from "react-highlight-words";
 
 //under testing
 import { Table } from "ant-table-extensions";
@@ -11,6 +12,7 @@ import Annotator from "../../components/Annotator";
 import InputTag from "../../components/Label";
 import Popup from "../../components/Popup";
 import Comments from "../../components/Comments";
+// import { getColumnSearchProps } from "../../components/SearchUtils";
 
 import { useDebounce } from "../../utils/CustomHook";
 
@@ -21,8 +23,105 @@ function HomePage(props) {
   const [table, setTable] = useState(dataSet.data);
   const [column, setColumns] = useState(dataSet.columns);
   const [selectionType, setSelectionType] = useState("checkbox");
+  const [searchText, setSearchText] = useState("");
+  const [searchedColumn, setSearchedColumn] = useState("");
   const searchInput = useRef(null);
   const { Option } = Select;
+
+    //TODO: optimize the search function and try moving to different file
+  function getColumnSearchProps(dataIndex) {
+    return {
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }) => (
+        <div style={{ padding: 8 }}>
+          <Input
+            ref={searchInput}
+            placeholder={`Search ${dataIndex}`}
+            value={selectedKeys[0]}
+            onChange={(e) =>
+              setSelectedKeys(e.target.value ? [e.target.value] : [])
+            }
+            onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+            style={{ marginBottom: 8, display: "block" }}
+          />
+          <Space>
+            <Button
+              type="primary"
+              onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+              icon={<SearchOutlined />}
+              size="small"
+              style={{ width: 90 }}
+            >
+              Search
+            </Button>
+            <Button
+              onClick={() => handleReset(clearFilters)}
+              size="small"
+              style={{ width: 90 }}
+            >
+              Reset
+            </Button>
+            <Button
+              type="link"
+              size="small"
+              onClick={() => {
+                confirm({ closeDropdown: false });
+                setSearchText(selectedKeys[0]);
+                setSearchedColumn(dataIndex);
+              }}
+            >
+              Filter
+            </Button>
+          </Space>
+        </div>
+      ),
+      filterIcon: (filtered) => (
+        <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
+      ),
+      onFilter: (value, record) =>
+        record[dataIndex]
+          ? record[dataIndex]
+              .toString()
+              .toLowerCase()
+              .includes(value.toLowerCase())
+          : "",
+      onFilterDropdownVisibleChange: (visible) => {
+        if (visible) {
+          setTimeout(
+            () =>
+              searchInput && searchInput.current && searchInput.current.select()
+          );
+        }
+      },
+      render: (text) =>
+        searchedColumn === dataIndex ? (
+          <Highlighter
+            highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+            searchWords={[searchText]}
+            autoEscape
+            textToHighlight={text ? text.toString() : ""}
+          />
+        ) : (
+          text
+        ),
+    };
+  }
+
+  function handleSearch(selectedKeys, confirm, dataIndex) {
+    confirm();
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
+  }
+
+  function handleReset(clearFilters) {
+    clearFilters();
+    setSearchText("");
+    setSearchedColumn("");
+  }
 
   useEffect(() => {
     //table cell data
@@ -32,6 +131,7 @@ function HomePage(props) {
         id: item.id,
         date: item.date,
         description: item.description,
+        annotation: item.annotation,
         labels: item.labels,
         comments: item.comments,
         action: item.actions,
@@ -41,6 +141,7 @@ function HomePage(props) {
     //table columns data
     const updatedColumns = column.map((item, index) => {
       const sortList = ["id", "date"];
+      const searchList = ["id","description"];
       const id = item.id;
 
       let list = {
@@ -60,6 +161,14 @@ function HomePage(props) {
         };
       }
 
+      //NOTE:Place this before description annotation
+      if (searchList.includes(id)) {
+        list = {
+          ...list,
+          ...getColumnSearchProps(id),
+        };
+      }
+
       if (id === "description") {
         list = {
           ...list,
@@ -68,7 +177,8 @@ function HomePage(props) {
             return (
               <Annotator
                 key={record.id}
-                content={record.description}
+                text={record.description}
+                annotation={record.annotation}
                 label={record.labels}
               />
             );
@@ -210,39 +320,9 @@ function HomePage(props) {
     }),
   };
 
-  //TODO: optimize the search function and sync with debounce hook
-  const handleSearch = (e) => {
-    const input = searchInput.current.input.value.toUpperCase();
-    if (input.length > 3) {
-      const value = table.filter((item, index) => {
-        return item.description.text.toUpperCase().includes(input);
-      });
-      setTable(value);
-    } else {
-      setTable(dataSet.data);
-    }
-  };
-
   return (
     <>
       <div style={{ padding: "50px 140px" }}>
-        <Input.Group>
-          <Input.Search
-            ref={searchInput}
-            onChange={handleSearch}
-            size="large"
-            placeholder="Entry description search"
-            style={{ width: "40%", margin: "20px 0" }}
-          />
-          <Button
-            danger
-            onClick={() => setTable(dataSet.data)}
-            style={{ margin: "25px" }}
-          >
-            Clear
-          </Button>
-        </Input.Group>
-
         <Table
           bordered
           exportableProps={{ showColumnPicker: true }}

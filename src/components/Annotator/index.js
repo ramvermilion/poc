@@ -22,7 +22,7 @@ function Annotator(props) {
     setState(value);
   };
 
-  const handleVisibleChange = (value, e) => {
+  const handleVisibleChange = (value) => {
     setVisible(true);
   };
 

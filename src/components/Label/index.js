@@ -11,22 +11,20 @@ function InputTag(props) {
   const [tags, setTags] = useState(props.item);
   const input = useRef(null);
   const [color, setColor] = useState({ hex: "#84D2FF" });
-  const [inputVisible, setInputVisible] = useState(false);
+  const [visible, setVisible] = useState(false);
   const [inputText, setInputText] = useState("");
   const popupRef = useRef();
   const labelRef = useRef(null);
 
-  useOutsideClick(popupRef, () => setInputVisible(false));
+  useOutsideClick(popupRef, () => setVisible(false));
 
   const handleClose = (removedTag) => {
     const updatedTags = tags.filter((tag) => tag !== removedTag);
     setTags(updatedTags);
   };
 
-  const showInput = () => {
-    // setInputVisible(true, () => this.input.focus());
-    setInputVisible(true);
-    // input.current.focus();
+  const handleVisibleChange = (value) => {
+    setVisible(true);
   };
 
   const handleClick = () => {
@@ -37,7 +35,7 @@ function InputTag(props) {
       updatedTags = [...tags, { text: inputText, color: color.hex }];
     }
     setTags(updatedTags);
-    setInputVisible(false);
+    setVisible(false);
     setInputText("");
   };
 
@@ -86,8 +84,8 @@ function InputTag(props) {
         <Popup
           placement="bottom"
           type="click"
-          // visible={visible}
-          // onVisibleChange={handleVisibleChange}
+          visible={visible}
+          onVisibleChange={handleVisibleChange}
           content={contentItems}
         >
           <PlusOutlined style={{ color: "black" }} />

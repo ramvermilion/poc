@@ -1,17 +1,16 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Input, Button, Select, Space } from "antd";
-import Highlighter from "react-highlight-words";
+import { Input, Switch, Table } from "antd";
 
 //under testing
-import { Table } from "ant-table-extensions";
-import { Resizable } from "react-resizable";
-import { MoreOutlined, SearchOutlined } from "@ant-design/icons";
+// import { Table } from "ant-table-extensions";
+import { MoreOutlined } from "@ant-design/icons";
 
 //components
 import Annotator from "../../components/Annotator";
 import InputTag from "../../components/Label";
 import Popup from "../../components/Popup";
 import Comments from "../../components/Comments";
+import { getColumnSearchProps } from "../../components/SearchUtils";
 
 //input json data
 import { dataSet } from "../../assets/inputData";
@@ -19,80 +18,7 @@ import { dataSet } from "../../assets/inputData";
 function HomePage(props) {
   const [table, setTable] = useState(dataSet.data);
   const [column, setColumns] = useState(dataSet.columns);
-  const [searchText, setSearchText] = useState("");
-  const [searchedColumn, setSearchedColumn] = useState("");
-  const searchInput = useRef(null);
-
-  //TODO: Try moving to different file
-  function getColumnSearchProps(dataIndex) {
-    return {
-      filterDropdown: ({
-        setSelectedKeys,
-        selectedKeys,
-        confirm,
-        clearFilters,
-      }) => (
-        <div style={{ padding: 8 }}>
-          <Input
-            ref={searchInput}
-            placeholder={`Search ${dataIndex}`}
-            value={selectedKeys[0]}
-            onChange={(e) =>
-              setSelectedKeys(e.target.value ? [e.target.value] : [])
-            }
-            onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-            style={{ marginBottom: 8, display: "block" }}
-          />
-          <Space>
-            <Button
-              type="primary"
-              onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
-              icon={<SearchOutlined />}
-              size="small"
-              style={{ width: 90 }}
-            >
-              Search
-            </Button>
-            <Button
-              onClick={() => {
-                setSelectedKeys("");
-                confirm();
-              }}
-              size="small"
-              style={{ width: 90 }}
-            >
-              Reset
-            </Button>
-          </Space>
-        </div>
-      ),
-      filterIcon: (filtered) => (
-        <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
-      ),
-      onFilter: (value, record) =>
-        record[dataIndex]
-          ? record[dataIndex]
-              .toString()
-              .toLowerCase()
-              .includes(value.toLowerCase())
-          : "",
-      onFilterDropdownVisibleChange: (visible) => {
-        if (visible) {
-          setTimeout(
-            () =>
-              searchInput && searchInput.current && searchInput.current.select()
-          );
-        }
-      },
-      render: (text) => text,
-    };
-  }
-
-  function handleSearch(selectedKeys, confirm, dataIndex) {
-    confirm();
-    setSearchText(selectedKeys[0]);
-    setSearchedColumn(dataIndex);
-  }
+  const [fixedTop, setFixedTop] = useState(false);
 
   useEffect(() => {
     //table cell data
@@ -118,7 +44,7 @@ function HomePage(props) {
       let list = {
         title: item.name,
         dataIndex: item.id,
-        with: 200,
+        with: "20%",
       };
 
       if (sortList.includes(id)) {
@@ -160,7 +86,7 @@ function HomePage(props) {
       if (id === "action") {
         list = {
           ...list,
-          width: 50,
+          width: 80,
           render: (text) => {
             const content = (
               <div>
@@ -183,7 +109,6 @@ function HomePage(props) {
       if (id === "labels") {
         list = {
           ...list,
-          width: 200,
           render: (tags) => (
             <>
               <InputTag item={tags} />
@@ -195,7 +120,7 @@ function HomePage(props) {
       if (id === "comments") {
         list = {
           ...list,
-          width: 50,
+          width: 120,
           render: (comments, record, i) => (
             <>
               <Comments
@@ -210,72 +135,12 @@ function HomePage(props) {
         };
       }
 
-      // list = {
-      //   ...list,
-      //   onHeaderCell: (column) => ({
-      //     width: column.width,
-      //     onResize: handleResize(index),
-      //   })
-      // }
-
       return list;
     });
 
     setColumns(updatedColumns);
     setTable(updatedCells);
   }, [dataSet]);
-
-  const ResizableTitle = (props) => {
-    const { onResize, width, ...restProps } = props;
-
-    if (!width) {
-      return <th {...restProps} />;
-    }
-
-    return (
-      <Resizable
-        width={width}
-        height={0}
-        handle={
-          <span
-            className="react-resizable-handle"
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
-          />
-        }
-        onResize={onResize}
-        draggableOpts={{ enableUserSelectHack: false }}
-      >
-        <th width-id={width} {...restProps} />
-      </Resizable>
-    );
-  };
-
-  const components = {
-    header: {
-      cell: ResizableTitle,
-    },
-  };
-
-  const handleResize =
-    (index) =>
-    (e, { size }) => {
-      const nextColumns = [...column];
-      nextColumns[index] = {
-        ...nextColumns[index],
-        width: size.width,
-      };
-      setColumns(nextColumns);
-    };
-
-  const columnsData = column.map((col, index) => ({
-    ...col,
-    onHeaderCell: (column) => ({
-      width: column.width,
-      onResize: handleResize(index),
-    }),
-  }));
 
   const rowSelection = {
     onChange: (selectedRowKeys, selectedRows) => {
@@ -293,7 +158,7 @@ function HomePage(props) {
 
   return (
     <>
-      <div style={{ padding: "50px 140px" }}>
+      <div style={{ padding: "50px 100px" }}>
         <Table
           bordered
           exportableProps={{ showColumnPicker: true }}
@@ -301,9 +166,13 @@ function HomePage(props) {
             type: "checkbox",
             ...rowSelection,
           }}
-          components={components}
+          showSorterTooltip={false}
+          summary={(pageData) => (
+            <Table.Summary fixed={fixedTop ? "top" : "bottom"} />
+          )}
+          sticky
           dataSource={table}
-          columns={columnsData}
+          columns={column}
           pagination={{
             position: ["bottomRight"],
           }}

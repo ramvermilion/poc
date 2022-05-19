@@ -1,11 +1,13 @@
-import React from 'react';
+import React from "react";
+
+import ResizableTitle from "../Resizable";
 
 function DemoPage(props) {
-    return (
-        <div>
-            <h1>This is a Demopage</h1>
-        </div>
-    );
+  return (
+    <div>
+      <ResizableTitle />
+    </div>
+  );
 }
 
 export default DemoPage;

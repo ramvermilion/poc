@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Input, Switch, Table } from "antd";
-
+import { Input, Switch, Table as AntdActualTable } from "antd";
 //under testing
-// import { Table } from "ant-table-extensions";
+import { Table } from "ant-table-extensions";
 import { MoreOutlined } from "@ant-design/icons";
 
 //components
@@ -19,6 +18,7 @@ function HomePage(props) {
   const [table, setTable] = useState(dataSet.data);
   const [column, setColumns] = useState(dataSet.columns);
   const [fixedTop, setFixedTop] = useState(false);
+  const [selectedRowsArray, setSelectedRowsArray] = useState([]);
 
   useEffect(() => {
     //table cell data
@@ -140,7 +140,49 @@ function HomePage(props) {
 
     setColumns(updatedColumns);
     setTable(updatedCells);
+
   }, [dataSet]);
+  const formateFields = () => {
+    console.log(selectedRowsArray, "selectedRowsArray")
+    let eachRow = table[0]
+    let calcfields = {}
+    let keys = Object.keys(eachRow)
+    Object.values(eachRow).forEach((e, i) => {
+
+      if (typeof (e) == "object" || typeof (e) == "array") {
+        console.log(typeof (e), "typeof (e)")
+        calcfields[keys[i]] = {
+          header: keys[i],
+          formatter: (_fieldValue, record, recordIndex) => {
+            if (selectedRowsArray.indexOf(recordIndex) != -1) {
+              return JSON.stringify(record[keys[i]]);
+            }
+            else {
+              return null
+            }
+
+          },
+        }
+
+      }
+      else {
+        calcfields[keys[i]] = {
+          header: keys[i],
+          formatter: (_fieldValue, record, recordIndex) => {
+            if (selectedRowsArray.indexOf(recordIndex) != -1) {
+              return record[keys[i]]
+            }
+            else {
+              return null
+            }
+          },
+        }
+      }
+    })
+    console.log(calcfields)
+    // setFields(calcfields)
+    return calcfields
+  }
 
   const rowSelection = {
     onChange: (selectedRowKeys, selectedRows) => {
@@ -149,26 +191,27 @@ function HomePage(props) {
         "selectedRows: ",
         selectedRows
       );
+      setSelectedRowsArray(selectedRowKeys)
     },
     getCheckboxProps: (id) => ({
       disabled: id.name === "Disabled User", // Column configuration not to be checked
       name: id.name,
     }),
   };
-
+  const fields = formateFields()
   return (
     <>
       <div style={{ padding: "50px 100px" }}>
         <Table
           bordered
-          exportableProps={{ showColumnPicker: true }}
+          exportableProps={{ fields, showColumnPicker: true }}
           rowSelection={{
             type: "checkbox",
             ...rowSelection,
           }}
           showSorterTooltip={false}
           summary={(pageData) => (
-            <Table.Summary fixed={fixedTop ? "top" : "bottom"} />
+            <AntdActualTable.Summary fixed={fixedTop ? "top" : "bottom"} />
           )}
           sticky
           dataSource={table}

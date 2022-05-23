@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { Input, Switch, Table as AntdActualTable } from "antd";
 //under testing
+import { Resizable } from "react-resizable";
 import { Table } from "ant-table-extensions";
 import { MoreOutlined } from "@ant-design/icons";
 
@@ -13,6 +14,33 @@ import { getColumnSearchProps } from "../../components/SearchUtils";
 
 //input json data
 import { dataSet } from "../../assets/inputData";
+
+const ResizableTitle = (props) => {
+  const { onResize, width, ...restProps } = props;
+
+  if (!width) {
+    return <th {...restProps} />;
+  }
+
+  return (
+    <Resizable
+      width={width}
+      height={0}
+      handle={
+        <span
+          className="react-resizable-handle"
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+        />
+      }
+      onResize={onResize}
+      draggableOpts={{ enableUserSelectHack: false }}
+    >
+      <th {...restProps} />
+    </Resizable>
+  );
+};
 
 function HomePage(props) {
   const data = useMemo(() => dataSet, [dataSet]);
@@ -46,7 +74,7 @@ function HomePage(props) {
       let list = {
         title: item.name,
         dataIndex: item.id,
-        with: "20%",
+        with: 100,
       };
 
       if (sortList.includes(id)) {
@@ -143,6 +171,26 @@ function HomePage(props) {
     setColumns(updatedColumns);
     setTable(updatedCells);
   }, [data]);
+
+  const handleResize =
+    (index) =>
+    (e, { size }) => {
+      const newColumns = [...column];
+      newColumns[index] = {
+        ...newColumns[index],
+        width: size.width,
+      };
+      setColumns(newColumns);
+    };
+
+  const mergeColumns = column.map((col, index) => ({
+    ...col,
+    onHeaderCell: (column) => ({
+      width: column.width,
+      onResize: handleResize(index),
+    }),
+  }));
+
   const formateFields = () => {
     console.log(selectedRowsArray, "selectedRowsArray");
     let eachRow = table[0];
@@ -199,6 +247,11 @@ function HomePage(props) {
       <div style={{ padding: "50px 100px" }}>
         <Table
           bordered
+          components={{
+            header: {
+              cell: ResizableTitle,
+            },
+          }}
           exportableProps={{ fields, showColumnPicker: true }}
           rowSelection={{
             type: "checkbox",
@@ -210,7 +263,7 @@ function HomePage(props) {
           )}
           sticky
           dataSource={table}
-          columns={column}
+          columns={mergeColumns}
           pagination={{
             position: ["bottomRight"],
           }}

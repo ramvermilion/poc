@@ -36,7 +36,7 @@ code {
   z-index: 1;
   width: 10px;
   height: 100%;
-  cursor: col-resize;
+  cursor: e-resize;
 }
 
 .site-tag-plus {
@@ -45,6 +45,6 @@ code {
 }
 
 /* custom css */
-.ant-table-thead > tr > th {
+.ant-table-thead>tr>th {
   background: #e4e8ec !important;
 }
